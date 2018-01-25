@@ -1086,7 +1086,15 @@ sub next {
 					my ( $pattern, $var_str ) = parseArgs( "$1", undef, ',' );
 					$var_str =~ s/^\s+|\s+$//gos;
 					my $split_var = find_variable( $var_str );
+					if ($split_var->{type} eq "accessed_array" && $split_var->{complement} ne "" && $split_var->{complement} !~ /^\d+$/) {
+						while ($split_var->{complement} ne "" && $split_var->{complement} !~ /^\d+$/) {
+							$split_var->{complement} = find_variable($split_var->{complement});
+							$split_var->{complement} = $eventMacro->get_var($split_var->{complement}->{type}, $split_var->{complement}->{real_name}, $split_var->{complement}->{complement});
+						}
+						$self->error( 'Complement not recognized' ), return if $split_var->{complement} eq "";
+					}
 					$self->error( 'Variable not recognized' ), return if !$split_var;
+					
 					$eventMacro->set_full_array( $var->{real_name}, [ split $pattern, $eventMacro->get_split_var( $split_var ) ] );
 				} elsif ($var->{type} eq 'array' && $value =~ /^$macro_keywords_character(keys|values)\(($hash_variable_qr)\)$/) {
 					my $type = $1;

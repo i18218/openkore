@@ -485,6 +485,10 @@ sub getRandomRange {
 sub find_variable {
 	my ($text) = @_;
 	
+	if (my $accessed_var = find_accessed_variable($text)) {
+		return ({ display_name => $accessed_var->{display_name}, type => $accessed_var->{type}, real_name => $accessed_var->{real_name}, complement => $accessed_var->{complement} });
+	}
+	
 	if (my $scalar = find_scalar_variable($text)) {
 		return ({ display_name => $scalar->{display_name}, type => 'scalar', real_name => $scalar->{real_name} });
 	}
@@ -495,10 +499,6 @@ sub find_variable {
 	
 	if (my $hash = find_hash_variable($text)) {
 		return ({ display_name => $hash->{display_name}, type => 'hash', real_name => $hash->{real_name} });
-	}
-	
-	if (my $accessed_var = find_accessed_variable($text)) {
-		return ({ display_name => $accessed_var->{display_name}, type => $accessed_var->{type}, real_name => $accessed_var->{real_name}, complement => $accessed_var->{complement} });
 	}
 	
 	return undef;
